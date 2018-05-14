@@ -1,0 +1,4 @@
+*.o
+*.ps
+atm_server
+mclient
