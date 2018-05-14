@@ -1,4 +1,5 @@
 #include "atm.hpp"
+#include <iostream>
 /**                                                                            
  * 振込サービス
  *  [ARGUMENT]                                                           
@@ -17,7 +18,7 @@ int transfer_func(PGconn *__con, int __idSrc, int __idDest, int __transferValue,
 	int         resultRows;      
 	AccountBank accountSrc, accountDest;                
 	int         resultBalanceSrc, resultBalanceDest;
-	char        *sqlBegin="BEGIN", *sqlCommit="COMMIT", *sqlRollback="ROLLBACK";
+	std::string	sqlBegin="BEGIN", sqlCommit="COMMIT", sqlRollback="ROLLBACK";
 
 	/* 振込額のチェック */
 	if( __transferValue < 0 ){
@@ -83,7 +84,7 @@ int transfer_func(PGconn *__con, int __idSrc, int __idDest, int __transferValue,
 	}
 
 	/* トランザクション処理を開始 */
-	res = PQexec(__con, sqlBegin);
+	res = PQexec(__con, sqlBegin.c_str());
 	if( PQresultStatus(res) != PGRES_COMMAND_OK){
 		printf("%s", PQresultErrorMessage(res));
 		sprintf(__sendBuf, "%s %d%s", ER_STAT, E_CODE_7, ENTER);
@@ -99,7 +100,7 @@ int transfer_func(PGconn *__con, int __idSrc, int __idDest, int __transferValue,
 	if( PQresultStatus(res) != PGRES_COMMAND_OK){
 		printf("%s", PQresultErrorMessage(res));
 		sprintf(__sendBuf, "%s %d%s", ER_STAT, E_CODE_7, ENTER);
-		PQexec(__con, sqlRollback); //トランザクション処理をrollback
+		PQexec(__con, sqlRollback.c_str()); //トランザクション処理をrollback
 		return -1;
 	}
 	/* UPDATEされた行数を取得 */
@@ -119,7 +120,7 @@ int transfer_func(PGconn *__con, int __idSrc, int __idDest, int __transferValue,
 	if(PQresultStatus(res) != PGRES_COMMAND_OK){
 		printf("%s", PQresultErrorMessage(res));
 		sprintf(__sendBuf, "%s %d%s", ER_STAT, E_CODE_7, ENTER);
-		PQexec(__con, sqlRollback); //トランザクション処理をrollback
+		PQexec(__con, sqlRollback.c_str()); //トランザクション処理をrollback
 		return -1;
 	}
 	/* UPDATEされた行数を取得 */
@@ -131,7 +132,7 @@ int transfer_func(PGconn *__con, int __idSrc, int __idDest, int __transferValue,
 	}
 
 	/* トランザクション処理を正常に終了 */
-	res = PQexec(__con, sqlCommit);
+	res = PQexec(__con, sqlCommit.c_str());
 	if(PQresultStatus(res) != PGRES_COMMAND_OK){
 		printf("%s", PQresultErrorMessage(res));
 		sprintf(__sendBuf, "%s %d%s", ER_STAT, E_CODE_7, ENTER);
