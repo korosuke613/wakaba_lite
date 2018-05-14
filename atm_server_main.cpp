@@ -3,7 +3,7 @@
  * atm_server_main.c
  **/
 
-#include "atm.h"
+#include "atm.hpp"
 
 void service_start(int __lsoc);
 

@@ -1,5 +1,5 @@
 
-#include "atm.h"
+#include "atm.hpp"
 #include <unistd.h>
 
 /*

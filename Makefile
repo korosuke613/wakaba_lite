@@ -3,8 +3,8 @@
 ##
 CC		= g++
 LIBS		= -lpq
-SRCS		= atm_server_main.c setup_listen.c atm_service.c balance_func.c deposit_func.c withdraw_func.c transfer_func.c common_func.c
-HDRS            = atm.h
+SRCS		= atm_server_main.cpp setup_listen.cpp atm_service.cpp balance_func.cpp deposit_func.cpp withdraw_func.cpp transfer_func.cpp common_func.cpp
+HDRS            = atm.hpp
 OBJS		= $(SRCS:.c=.o)
 PROGRAM		= atm_server
 

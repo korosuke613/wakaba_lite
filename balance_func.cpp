@@ -1,4 +1,4 @@
-#include "atm.h"
+#include "atm.hpp"
 /*   
  * 残高照会                                         
  *  [ARGUMENT]                           
