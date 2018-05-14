@@ -9,23 +9,23 @@
 
 #include "atm.hpp"
 
-int setup_listen(u_short __port){
+int setup_listen(u_short __port) {
   struct sockaddr_in server;
   int soc;
 
-  memset(&server, 0 , sizeof(server)); //構造体serverを0で初期化
+  memset(&server, 0, sizeof(server));  //構造体serverを0で初期化
   server.sin_family = AF_INET;
-  server.sin_addr.s_addr = htonl(INADDR_ANY); //IPアドレスにはすべてを設定
-  server.sin_port = htons(__port); //ポート番号を設定
+  server.sin_addr.s_addr = htonl(INADDR_ANY);  // IPアドレスにはすべてを設定
+  server.sin_port = htons(__port);             //ポート番号を設定
 
   /* ソケットを作成 */
-  if( (soc = socket(AF_INET, SOCK_STREAM, 0))  < 0){
+  if ((soc = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
     perror("socket");
     return -1;
   }
 
   /* ソケットアドレスを設定 */
-  if(bind(soc, (struct sockaddr *)&server, sizeof(server)) < 0){
+  if (bind(soc, (struct sockaddr *)&server, sizeof(server)) < 0) {
     perror("bind");
     return -1;
   }
@@ -37,4 +37,3 @@ int setup_listen(u_short __port){
 
   return soc;
 }
-
