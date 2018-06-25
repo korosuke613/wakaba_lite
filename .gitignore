@@ -1,4 +1,5 @@
 *.o
-*.ps
-atm_server
+wakaba_lite
 mclient
+*.dSYM/
+.vscode/

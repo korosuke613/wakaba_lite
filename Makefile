@@ -1,19 +1,26 @@
 ##
 ## atm_server Makefile
 ##
+PROGRAM		= wakaba_lite
 CC		= g++
-LIBS		= -lpq -lpthread -g -std=c++14
-SRCS		= atm_server_main.cpp setup_listen.cpp atm_service.cpp balance_func.cpp deposit_func.cpp withdraw_func.cpp transfer_func.cpp common_func.cpp
-HDRS            = atm.hpp
-OBJS		= $(SRCS:.c=.o)
-PROGRAM		= atm_server
+SRCDIR		:= src
+INCDIR		:= include
+OUTDIR		:= build
+LIBS		= -lpq -lpthread -g -std=c++14 -Iinclude
+SRCS		= $(wildcard $(SRCDIR)/*.cpp)
+OBJS		= $(addprefix $(OUTDIR)/, $(patsubst %.cpp, %.o, $(SRCS)))
+TARGET		= $(OUTDIR)/$(PROGRAM)
 
-all:		$(PROGRAM)
+all:		$(TARGET)
 
-$(PROGRAM):	$(OBJS) $(HDRS) 
-		$(CC) $(OBJS) $(LIBS) -o $(PROGRAM)
+$(TARGET):	$(OBJS) 
+		$(CC) $(LIBS) -o $@ $^
+
+$(OUTDIR)/%.o:%.cpp
+		@if [ ! -e `dirname $@` ]; then mkdir -p `dirname $@`; fi
+		$(CC) $(LIBS) -o $@ -c $<
 
 clean:
-		rm -f *.o *~ $(PROGRAM)
+		rm -rf $(OUTDIR)
 
 ###
