@@ -1,9 +1,12 @@
+// Copyright 2018 Futa HIRAKOBA
+
 /**
  * ATMサーバ (マルチスレッド + libpq版)
  * atm_server_main.c
  **/
 
 #include <iostream>
+#include <string>
 #include "atm.hpp"
 
 void service_start(int __lsoc);
@@ -34,12 +37,12 @@ int main(int argc, char *argv[]) {
 void service_start(int __lsoc) {
   std::string dbHost = PSQL_IP;
   std::string dbPort = "5432";
-  std::string dbName = "db72";  //データベース名
+  std::string dbName = "db72";  // データベース名
   std::string dbLogin = "dbuser72";
   std::string dbPwd = "dbpass72";
   char connInfo[BUFSIZE];
-  pthread_t worker;              //スレッドID用
-  ThreadParameter *threadParam;  //スレッド引数用構造体
+  pthread_t worker;              // スレッドID用
+  ThreadParameter *threadParam;  // スレッド引数用構造体
   struct sockaddr_in client;
   unsigned int client_len;
   int s_new;
@@ -51,20 +54,22 @@ void service_start(int __lsoc) {
     s_new = accept(__lsoc, (struct sockaddr *)&client, &client_len);
     /* スレッド引数構造体に値をセット */
     /* スレッド引数構造体の領域は動的メモリとして確保 */
-    threadParam = (ThreadParameter *)malloc(sizeof(ThreadParameter));
-    threadParam->c_ipaddr = client.sin_addr;  //クライアントのIPアドレス
-    threadParam->c_port = client.sin_port;  //クライアントのポート
-    threadParam->soc = s_new;  //コネクション用ソケットディスクリプタ
+    threadParam =
+        reinterpret_cast<ThreadParameter *>(malloc(sizeof(ThreadParameter)));
+    threadParam->c_ipaddr = client.sin_addr;  // クライアントのIPアドレス
+    threadParam->c_port = client.sin_port;  // クライアントのポート
+    threadParam->soc = s_new;  // コネクション用ソケットディスクリプタ
     /* データベース接続パラメータ設定 */
-    sprintf(connInfo, "host=%s port=%s dbname=%s user=%s password=%s",
-            dbHost.c_str(), dbPort.c_str(), dbName.c_str(), dbLogin.c_str(),
-            dbPwd.c_str());
+    snprintf(connInfo, BUFSIZE, "host=%s port=%s dbname=%s user=%s password=%s",
+             dbHost.c_str(), dbPort.c_str(), dbName.c_str(), dbLogin.c_str(),
+             dbPwd.c_str());
     /* データベース接続 */
     threadParam->con = PQconnectdb(connInfo);
     /* 接続状態を確認 */
     if (PQstatus(threadParam->con) == CONNECTION_BAD) {
-      printf("Connection to database '%s:%s %s' failed.\n", dbHost.c_str(),
-             dbPort.c_str(), dbName.c_str());
+      std::cout << "Connection to database '" + dbHost + ":" + dbPort + " " +
+                       dbName + "' failed."
+                << std::endl;
       printf("%s", PQerrorMessage(threadParam->con));
       threadParam->con = NULL;  // GPconnをNULL
     } else {
@@ -72,8 +77,9 @@ void service_start(int __lsoc) {
              dbName.c_str());
     }
     /* スレッドの生成 */
-    pthread_create(&worker, NULL, atm_service, (void *)threadParam);
-    printf("[MAIN THREAD] Created thread ID: %u\n", worker);
+    pthread_create(&worker, NULL, atm_service,
+                   reinterpret_cast<void *>(threadParam));
+    printf("[MAIN THREAD] Created thread ID: %u¥n", worker);
     /* スレッドのデタッチ(終了を待たない) */
     pthread_detach(worker);
   }  // END while()

@@ -1,5 +1,7 @@
+// Copyright 2018 Futa HIRAKOBA
 
 #include <unistd.h>
+#include <iostream>
 #include "atm.hpp"
 
 /*
@@ -10,22 +12,24 @@
  *     NONE
  */
 void *atm_service(void *__arg) {
-  ThreadParameter *threadParam = (ThreadParameter *)__arg;  //スレッド引数構造体
+  ThreadParameter *threadParam =
+      reinterpret_cast<ThreadParameter *>(__arg);   //スレッド引数構造体
   char recvBuf[BUFSIZE], sendBuf[BUFSIZE];
   int recvLen, sendLen;
   char comm[BUFSIZE], comm2[BUFSIZE];  //リクエストコマンド
   int perm1Int, perm2Int, perm3Int;
-  pthread_t selfId;  //自分自身のスレッドID
+  pthread_t selfId;  // 自分自身のスレッドID
   int cnt;
 
-  selfId = pthread_self();  //自分自身のスレッドIDを取得
-  printf("[C_THREAD %u] ATM SERVICE START (%d)\n", selfId, threadParam->soc);
+  selfId = pthread_self();  // 自分自身のスレッドIDを取得
+  std::cout << "[C_THREAD " << selfId << "] ATM SERVICE START ("
+            << threadParam->soc << ")" << std::endl;
   while (1) {
     /* リクエストコマンド受信 */
     recvLen = receive_message(threadParam->soc, recvBuf, BUFSIZE);
     if (recvLen < 1) break;
     recvBuf[recvLen - 1] = '\0';  // <LF>を消去
-    printf("[C_THREAD %u] RECV=> %s\n", selfId, recvBuf);
+    std::cout << "[C_THREAD " << selfId << "] RECV=> " << recvBuf << std::endl;
     /* リクエストコマンド解析 */
     cnt = sscanf(recvBuf, "%s", comm);
     /* コマンド判定 */
@@ -34,7 +38,7 @@ void *atm_service(void *__arg) {
       if (sscanf(recvBuf, "%s %d", comm2, &perm1Int) == 2) {
         balance_func(threadParam->con, perm1Int, sendBuf);
       } else {
-        sprintf(sendBuf, "%s %d%s", ER_STAT, E_CODE_5, ENTER);
+        snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_5, ENTER);
       }
 
     } else if (strcmp(comm, DEPOSIT) == 0) {
@@ -42,7 +46,7 @@ void *atm_service(void *__arg) {
       if (sscanf(recvBuf, "%s %d %d", comm2, &perm1Int, &perm2Int) == 3) {
         deposit_func(threadParam->con, perm1Int, perm2Int, sendBuf);
       } else {
-        sprintf(sendBuf, "%s %d%s", ER_STAT, E_CODE_5, ENTER);
+        snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_5, ENTER);
       }
 
     } else if (strcmp(comm, WITHDRAW) == 0) {
@@ -50,7 +54,7 @@ void *atm_service(void *__arg) {
       if (sscanf(recvBuf, "%s %d %d", comm2, &perm1Int, &perm2Int) == 3) {
         withdraw_func(threadParam->con, perm1Int, perm2Int, sendBuf);
       } else {
-        sprintf(sendBuf, "%s %d%s", ER_STAT, E_CODE_5, ENTER);
+        snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_5, ENTER);
       }
 
     } else if (strcmp(comm, TRANSFER) == 0) {
@@ -59,19 +63,20 @@ void *atm_service(void *__arg) {
                  &perm3Int) == 4) {
         transfer_func(threadParam->con, perm1Int, perm2Int, perm3Int, sendBuf);
       } else {
-        sprintf(sendBuf, "%s %d%s", ER_STAT, E_CODE_5, ENTER);
+        snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_5, ENTER);
       }
 
     } else {
-      sprintf(sendBuf, "%s %d%s", ER_STAT, E_CODE_6, ENTER);
+      snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_6, ENTER);
     }
 
     sendLen = strlen(sendBuf);
     send(threadParam->soc, sendBuf, sendLen, 0);
-    printf("[C_THREAD %u] SEND=> %s\n", selfId, sendBuf);
+    std::cout << "[C_THREAD " << selfId << "] SEND=> " << sendBuf << std::endl;
   }  // END while()
 
-  printf("[C_THREAD %u] ATM SERVICE END (%d)\n\n", selfId, threadParam->soc);
+  std::cout << "[C_THREAD " << selfId << "] ATM SERVICE END ("
+            << threadParam->soc << ")" << std::endl;
 
   /* データベース接続を切断 */
   PQfinish(threadParam->con);
