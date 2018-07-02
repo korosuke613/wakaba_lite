@@ -1,18 +1,18 @@
 #include "DataBase.hpp"
 #include <string>
+#include <iostream>
 
 using std::string;
 
 string DataBase::get_conn_info() {
   string conn_info;
-  conn_info = "host=" + host + " port=" + port + " dbname=" + name +
-              " user=" + user + " password=" + password;
+  conn_info = "host=" + host + " port=" + port + " dbname=" + name +" user=" + user + " password=" + password;
   return conn_info;
 }
 
 PGconn* DataBase::connect_db() {
   con = PQconnectdb(get_conn_info().c_str());
-  status_check()
+  status_check();
   return con;
 }
 

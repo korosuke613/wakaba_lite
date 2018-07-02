@@ -2,7 +2,7 @@
 ## atm_server Makefile
 ##
 PROGRAM		= wakaba_lite
-CC		= g++
+CC		= g++-7
 SRCDIR		:= src
 INCDIR		:= include
 OUTDIR		:= build

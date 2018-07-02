@@ -2,8 +2,9 @@
 
 #include <unistd.h>
 #include <iostream>
+#include <string>
+#include "Controler.hpp"
 #include "atm.hpp"
-
 /*
  * ATMメイン処理 (スレッド関数)
  *   [ARGUMENT]
@@ -11,15 +12,14 @@
  *  [RETURN]
  *     NONE
  */
-void *atm_service(void *__arg) {
+void *wakaba_lite_service(void *__arg) {
   ThreadParameter *threadParam =
-      reinterpret_cast<ThreadParameter *>(__arg);   //スレッド引数構造体
+      reinterpret_cast<ThreadParameter *>(__arg);  //スレッド引数構造体
   char recvBuf[BUFSIZE], sendBuf[BUFSIZE];
   int recvLen, sendLen;
-  char comm[BUFSIZE], comm2[BUFSIZE];  //リクエストコマンド
-  int perm1Int, perm2Int, perm3Int;
   pthread_t selfId;  // 自分自身のスレッドID
   int cnt;
+  Controler controler;
 
   selfId = pthread_self();  // 自分自身のスレッドIDを取得
   std::cout << "[C_THREAD " << selfId << "] ATM SERVICE START ("
@@ -31,37 +31,43 @@ void *atm_service(void *__arg) {
     recvBuf[recvLen - 1] = '\0';  // <LF>を消去
     std::cout << "[C_THREAD " << selfId << "] RECV=> " << recvBuf << std::endl;
     /* リクエストコマンド解析 */
-    cnt = sscanf(recvBuf, "%s", comm);
+    auto commands = controler.split(recvBuf, ' ');
     /* コマンド判定 */
-    if (strcmp(comm, BALANCE) == 0) {
+    if (commands.at(0) == BALANCE) {
       /* 残高照会 */
-      if (sscanf(recvBuf, "%s %d", comm2, &perm1Int) == 2) {
-        balance_func(threadParam->con, perm1Int, sendBuf);
+      int prm;
+      if (commands.size() == 2) {
+        balance_func(threadParam->con, std::stoi(commands.at(1)), sendBuf);
       } else {
         snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_5, ENTER);
       }
 
-    } else if (strcmp(comm, DEPOSIT) == 0) {
+    } else if (commands.at(0) == DEPOSIT) {
       /* 入金 */
-      if (sscanf(recvBuf, "%s %d %d", comm2, &perm1Int, &perm2Int) == 3) {
-        deposit_func(threadParam->con, perm1Int, perm2Int, sendBuf);
+      int prm1, prm2;
+
+      if (commands.size() == 3) {
+        deposit_func(threadParam->con, std::stoi(commands.at(1)),
+                     std::stoi(commands.at(2)), sendBuf);
       } else {
         snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_5, ENTER);
       }
 
-    } else if (strcmp(comm, WITHDRAW) == 0) {
+    } else if (commands.at(0) == WITHDRAW) {
       /* 出金 */
-      if (sscanf(recvBuf, "%s %d %d", comm2, &perm1Int, &perm2Int) == 3) {
-        withdraw_func(threadParam->con, perm1Int, perm2Int, sendBuf);
+      if (commands.size() == 3) {
+        withdraw_func(threadParam->con, std::stoi(commands.at(1)),
+                      std::stoi(commands.at(2)), sendBuf);
       } else {
         snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_5, ENTER);
       }
 
-    } else if (strcmp(comm, TRANSFER) == 0) {
+    } else if (commands.at(0) == TRANSFER) {
       /* 振込 */
-      if (sscanf(recvBuf, "%s %d %d %d", comm2, &perm1Int, &perm2Int,
-                 &perm3Int) == 4) {
-        transfer_func(threadParam->con, perm1Int, perm2Int, perm3Int, sendBuf);
+      if (commands.size() == 4) {
+        transfer_func(threadParam->con, std::stoi(commands.at(1)),
+                      std::stoi(commands.at(2)), std::stoi(commands.at(3)),
+                      sendBuf);
       } else {
         snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_5, ENTER);
       }

@@ -15,7 +15,7 @@ class Controler {
  public:
   Controler() = default;
   explicit Controler(string recv_buf) : recv_buf(recv_buf) {
-    split(recv_buf, " ");
+    split(recv_buf, ' ');
   }
 
   vector<string> split(const string& s, char delim);

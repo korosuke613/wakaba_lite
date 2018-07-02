@@ -58,10 +58,8 @@ void service_start(int __lsoc) {
     threadParam->soc = s_new;  // コネクション用ソケットディスクリプタ
     /* データベース接続 */
     threadParam->con = db.connect_db();
-    /* 接続状態を確認 */
-    db.status_check();
     /* スレッドの生成 */
-    pthread_create(&worker, NULL, atm_service,
+    pthread_create(&worker, NULL, wakaba_lite_service,
                    reinterpret_cast<void *>(threadParam));
     printf("[MAIN THREAD] Created thread ID: %u¥n", worker);
     /* スレッドのデタッチ(終了を待たない) */
