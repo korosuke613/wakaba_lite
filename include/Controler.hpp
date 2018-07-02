@@ -10,7 +10,6 @@ using std::vector;
 class Controler {
  private:
   string recv_buf;
-  int command_count;
   vector<string> commands;
 
  public:

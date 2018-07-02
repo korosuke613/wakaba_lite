@@ -3,3 +3,4 @@ wakaba_lite
 mclient
 *.dSYM/
 .vscode/
+test
