@@ -1,6 +1,6 @@
 #include "Worker.hpp"
 
-int Worker::barance(int id) {
+int Worker::balance(int id) {
   char sql[BUFSIZE];
   PGresult *res;  // PGresultオブジェクト
   int resultRows;

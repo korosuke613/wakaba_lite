@@ -4,6 +4,7 @@
 #include <iostream>
 #include <string>
 #include "Controler.hpp"
+#include "Worker.hpp"
 #include "atm.hpp"
 /*
  * ATMメイン処理 (スレッド関数)
@@ -20,6 +21,7 @@ void *wakaba_lite_service(void *__arg) {
   pthread_t selfId;  // 自分自身のスレッドID
   int cnt;
   Controler controler;
+  Worker worker(threadParam->con, sendBuf);
 
   selfId = pthread_self();  // 自分自身のスレッドIDを取得
   std::cout << "[C_THREAD " << selfId << "] ATM SERVICE START ("
@@ -38,7 +40,7 @@ void *wakaba_lite_service(void *__arg) {
     if (command == BALANCE) {
       /* 残高照会 */
       if (params.size() == 1) {
-        balance_func(threadParam->con, std::stoi(params.at(0)), sendBuf);
+        worker.balance(std::stoi(params.at(0)));
       } else {
         snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_5, ENTER);
       }

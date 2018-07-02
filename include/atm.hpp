@@ -69,7 +69,6 @@ extern int receive_message(int __s, char *__buf, int __maxlen);
 extern int setup_listen(u_short __port);
 extern void *wakaba_lite_service(void *arg);
 
-extern int balance_func(PGconn *__con, int __id, char *__sendBuf);
 extern int deposit_func(PGconn *__con, int __id, int __depositValue, char *__sendBuf);
 extern int withdraw_func(PGconn *__con, int __id, int __withdrawValue, char *__sendBuf);
 extern int transfer_func(PGconn *__con, int __idSrc, int __idDest, int __transferValue, char *__sendBuf);

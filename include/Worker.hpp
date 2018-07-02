@@ -17,7 +17,10 @@ class Worker {
   char *__sendBuf;
 
  public:
-  int barance(int id);
+  Worker() = default;
+  explicit Worker(PGconn *con, char *sendBuf)
+      : __con(con), __sendBuf(sendBuf) {}
+  int balance(int id);
 };
 
-#endif __WORKER_HPP__
+#endif //__WORKER_HPP__
