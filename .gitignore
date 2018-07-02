@@ -4,3 +4,4 @@ mclient
 *.dSYM/
 .vscode/
 test
+mclient_mac

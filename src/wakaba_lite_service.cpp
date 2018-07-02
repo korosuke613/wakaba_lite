@@ -31,42 +31,41 @@ void *wakaba_lite_service(void *__arg) {
     recvBuf[recvLen - 1] = '\0';  // <LF>を消去
     std::cout << "[C_THREAD " << selfId << "] RECV=> " << recvBuf << std::endl;
     /* リクエストコマンド解析 */
-    auto commands = controler.split(recvBuf, ' ');
+    controler.split(recvBuf, ' ');
+    auto command = controler.get_command();
+    auto params = controler.get_params();
     /* コマンド判定 */
-    if (commands.at(0) == BALANCE) {
+    if (command == BALANCE) {
       /* 残高照会 */
-      int prm;
-      if (commands.size() == 2) {
-        balance_func(threadParam->con, std::stoi(commands.at(1)), sendBuf);
+      if (params.size() == 1) {
+        balance_func(threadParam->con, std::stoi(params.at(0)), sendBuf);
       } else {
         snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_5, ENTER);
       }
 
-    } else if (commands.at(0) == DEPOSIT) {
+    } else if (command == DEPOSIT) {
       /* 入金 */
-      int prm1, prm2;
-
-      if (commands.size() == 3) {
-        deposit_func(threadParam->con, std::stoi(commands.at(1)),
-                     std::stoi(commands.at(2)), sendBuf);
+      if (params.size() == 2) {
+        deposit_func(threadParam->con, std::stoi(params.at(0)),
+                     std::stoi(params.at(1)), sendBuf);
       } else {
         snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_5, ENTER);
       }
 
-    } else if (commands.at(0) == WITHDRAW) {
+    } else if (command == WITHDRAW) {
       /* 出金 */
-      if (commands.size() == 3) {
-        withdraw_func(threadParam->con, std::stoi(commands.at(1)),
-                      std::stoi(commands.at(2)), sendBuf);
+      if (params.size() == 2) {
+        withdraw_func(threadParam->con, std::stoi(params.at(0)),
+                      std::stoi(params.at(1)), sendBuf);
       } else {
         snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_5, ENTER);
       }
 
-    } else if (commands.at(0) == TRANSFER) {
+    } else if (command == TRANSFER) {
       /* 振込 */
-      if (commands.size() == 4) {
-        transfer_func(threadParam->con, std::stoi(commands.at(1)),
-                      std::stoi(commands.at(2)), std::stoi(commands.at(3)),
+      if (params.size() == 3) {
+        transfer_func(threadParam->con, std::stoi(params.at(0)),
+                      std::stoi(params.at(1)), std::stoi(params.at(2)),
                       sendBuf);
       } else {
         snprintf(sendBuf, BUFSIZE, "%s %d%s", ER_STAT, E_CODE_5, ENTER);

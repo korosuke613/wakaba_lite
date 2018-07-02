@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-std::vector<std::string> Controler::split(const string& s, char delim) {
+void Controler::split(const string& s, char delim) {
   std::stringstream ss(s);
   string item;
   commands.clear();
@@ -13,9 +13,13 @@ std::vector<std::string> Controler::split(const string& s, char delim) {
       commands.push_back(item);
     }
   }
-  return commands;
+  command = commands.at(0);
+  params = commands;
+  params.erase(params.begin());
 }
 
+std::string Controler::get_command() { return command; }
+std::vector<std::string> Controler::get_params() { return params; }
 /*
 int main(void) {
   Controler c("aaa bbbb ccccc");

@@ -11,14 +11,17 @@ class Controler {
  private:
   string recv_buf;
   vector<string> commands;
+  string command;
+  vector<string> params;
 
  public:
   Controler() = default;
   explicit Controler(string recv_buf) : recv_buf(recv_buf) {
     split(recv_buf, ' ');
   }
-
-  vector<string> split(const string& s, char delim);
+  string get_command();
+  vector<string> get_params();
+  void split(const string& s, char delim);
 };
 
 #endif
